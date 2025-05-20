@@ -1,0 +1,86 @@
+<div style="pointer-events: none;" id="flash-messages" class="z-[999999999999999999999999999999999] px-3 top-0 w-full h-full fixed"></div>
+
+<script>
+  
+  document.getElementById('contactForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const formData = new FormData(this);
+    const jsonData = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
+    fetch('/contact-us', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw err; });
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        document.getElementById('flash-messages').innerHTML = `
+          <div class="alert alert-success bg-green-100 border border-green-400 text-green-700 px-4 mx-auto flex w-fit mt-[3vw] py-[3vw] rounded relative" role="alert">
+            <img class="w-[4vh] h-[4vh] object-cover object-center inline" src="/images/icons/icons8-success-48.png" alt="">
+            <span class="block sm:inline">${data.message}</span>
+          </div>`;
+        // Clear the form fields
+        document.getElementById('contactForm').reset();
+        // Remove success message after 2.5 seconds
+        setTimeout(() => {
+          document.getElementById('flash-messages').innerHTML = '';
+        }, 5500);
+      }
+    })
+    .catch(error => {
+      // Handle error
+      document.getElementById('contactForm').reset();
+      if (error.errors) {
+        // Clear previous validation errors
+        document.querySelectorAll('.validation-error').forEach(el => el.remove());
+
+        // Display validation errors next to the respective fields
+        error.errors.forEach(err => {
+          const field = document.querySelector(`[name="${err.path}"]`);
+          if (field) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'validation-error alert alert-danger text-red-600';
+            errorElement.innerText = `*${err.msg}*`;
+            field.parentNode.appendChild(errorElement);
+
+            // Remove validation error after 2 seconds
+            setTimeout(() => {
+              errorElement.remove();
+            }, 5000);
+          }
+        });
+      } else {
+        // Display database and server errors in the flash messages div
+        document.getElementById('flash-messages').innerHTML = `
+          <div class="alert alert-danger bg-red-100 border border-red-400 flex text-red-700 px-4 mx-auto w-fit mt-[3vw] py-[3vw] rounded relative" role="alert">
+            <img class="w-[4vh] h-[4vh] object-cover object-center inline" src="/images/icons/icons8-close-window-48.png" alt="">
+            <span class="block sm:inline">${error.message}</span>
+          </div>`;
+        // Remove error message after 2.5 seconds
+        setTimeout(() => {
+          document.getElementById('flash-messages').innerHTML = '';
+        }, 5500);
+      }
+    });
+  });
+</script>
+
+<%- include('./dependencies'); %>
+<%- include('./dependencies'); %>
+<script src="/javascripts/index.js"></script>
+<script src="/javascripts/demo.js"></script>
+<script src="/javascripts/TweenMax.min.js"></script>
+</body>
+
+</html>
