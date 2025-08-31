@@ -1,0 +1,162 @@
+<!-- Sign Up Page with Phone Number -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#D7D1C6] text-[#332E24]">
+  <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+    <div class="alert absolute bottom-[10%] right-[10%] min-w-[20vh] max-w-[40vh] min-h-[8vh] rounded-md bg-[#B3DBAE] px-3 items-center gap-2 py-3 cursor-pointer flex">
+        <img class="w-[4vh] h-[4vh] object-cover object-center" src="/images/icons/icons8-success-48.png" alt="">
+       <h6><%= success_msg %></h6>
+    </div>
+<% } %>
+
+<% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+    <div class="alert absolute bottom-[10%] right-[10%] min-w-[20vh] max-w-[40vh] min-h-[8vh] rounded-md bg-red-200 px-3 items-center gap-2 py-3 cursor-pointer flex">
+        <img class="w-[4vh] h-[4vh] object-cover object-center" src="/images/icons/icons8-close-window-48.png" alt="">
+        <h6><%=error_msg%></h6>
+    </div>
+<% } %>
+  <div class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('your-image-path.jpg');">
+    <div class="bg-white bg-opacity-80 rounded-lg p-10 w-full max-w-md shadow-xl">
+      <h2 class="text-3xl font-bold text-center mb-8">Create Account</h2>
+      <form id="signupForm" action="/user-signup" method="POST">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
+          <input type="text" id="name" name="fullname" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#332E24]">
+          <% if (errors) { %>
+            <% let emailError = errors.find(error => error.path === "fullname"); %>
+            <% if (emailError) { %>
+                <p class="mt-2 text-red-600">*<%= emailError.msg %>*</p>
+            <% } %>
+        <% } %>
+        </div>
+
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium mb-2">Email</label>
+          <input type="email" id="email" name="email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#332E24]">
+          <% if (errors) { %>
+            <% let emailError = errors.find(error => error.path === "email"); %>
+            <% if (emailError) { %>
+                <p class="mt-2 text-red-600">*<%= emailError.msg %>*</p>
+            <% } %>
+        <% } %>
+        </div>
+
+        <div class="mb-4">
+          <label for="phone" class="block text-sm font-medium mb-2">Phone Number</label>
+          <input type="tel" id="phone" name="phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#332E24]" required pattern="\d{10}" placeholder="(+91) 456-7890">
+          <% if (errors) { %>
+            <% let phoneError = errors.find(error => error.path === "phone"); %>
+            <% if (phoneError) { %>
+              
+                <p class="mt-2 text-red-600">*<%= phoneError.msg %>*</p>
+            <% } %>
+        <% } %>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="block text-sm font-medium mb-2">Password</label>
+          <input type="password" id="password" name="password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#332E24]">
+          <% if (errors) { %>
+            <% let emailError = errors.find(error => error.path === "password"); %>
+            <% if (emailError) { %>
+                <p class="mt-2 text-red-600">*<%= emailError.msg %>*</p>
+            <% } %>
+        <% } %>
+        </div>
+
+        <button type="submit" class="w-full bg-[#332E24] text-white py-2 rounded-lg hover:bg-[#4b3d31] focus:outline-none">Sign Up</button>
+      </form>
+      
+      <div class="mt-6 text-center">
+        <p class="text-sm">Already have an account? <a href="/user-login" class="text-[#332E24] hover:underline">Login</a></p>
+      </div>
+    </div>
+  </div>
+  <div style="pointer-events: none;" id="flash-messages" class="px-3 z-[999999999999999999999999999999999] top-0 w-full h-full fixed"></div>
+
+  <script>
+    
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+  
+      const formData = new FormData(this);
+      const jsonData = {};
+      formData.forEach((value, key) => {
+        jsonData[key] = value;
+      });
+  
+      fetch('/user-signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => { throw err; });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+         window.location.href = '/user-login';
+          
+          document.getElementById('flash-messages').innerHTML = `
+            <div class="alert alert-success bg-green-100 border border-green-400 text-green-700 px-4 mx-auto flex w-fit mt-[3vw] py-[3vw] rounded relative" role="alert">
+              <img class="w-[4vh] h-[4vh] object-cover object-center inline" src="/images/icons/icons8-success-48.png" alt="">
+              <span class="block sm:inline">${data.message}</span>
+            </div>`;
+          // Clear the form fields
+          document.getElementById('signupForm').reset();
+          // Remove success message after 2.5 seconds
+          setTimeout(() => {
+            document.getElementById('flash-messages').innerHTML = '';
+          }, 5500);
+        }
+      })
+      .catch(error => {
+        // Handle error
+        document.getElementById('signupForm').reset();
+        if (error.errors) {
+          // Clear previous validation errors
+          document.querySelectorAll('.validation-error').forEach(el => el.remove());
+  
+          // Display validation errors next to the respective fields
+          error.errors.forEach(err => {
+            const field = document.querySelector(`[name="${err.path}"]`);
+            if (field) {
+              const errorElement = document.createElement('div');
+              errorElement.className = 'validation-error alert alert-danger text-red-600';
+              errorElement.innerText = `*${err.msg}*`;
+              field.parentNode.appendChild(errorElement);
+  
+              // Remove validation error after 2 seconds
+              setTimeout(() => {
+                errorElement.remove();
+              }, 5000);
+            }
+          });
+        } else {
+          // Display database and server errors in the flash messages div
+          document.getElementById('flash-messages').innerHTML = `
+            <div class="alert alert-danger bg-red-100 border border-red-400 flex text-red-700 px-4 mx-auto w-fit mt-[3vw] py-[3vw] rounded relative" role="alert">
+              <img class="w-[4vh] h-[4vh] object-cover object-center inline" src="/images/icons/icons8-close-window-48.png" alt="">
+              <span class="block sm:inline">${error.message}</span>
+            </div>`;
+          // Remove error message after 2.5 seconds
+          setTimeout(() => {
+            document.getElementById('flash-messages').innerHTML = '';
+          }, 5500);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

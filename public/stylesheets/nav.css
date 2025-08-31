@@ -1,0 +1,62 @@
+
+@font-face {
+    font-family: head;
+    src: url("../fonts/A2RecordGothic-Regular.ttf");
+}
+@font-face {
+    font-family: headb;
+    src: url("../fonts/A2RecordGothicCondensed-Bold.ttf");
+}
+@font-face {
+    font-family: headm;
+    src: url("../fonts/A2RecordGothicCondensed-Medium.ttf");
+}
+#menuline{
+
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    position: relative;
+}
+#menuline .line{
+    width: 60%;
+    flex-shrink: 0;
+    height: 1.5px;
+    background-color: #575349;
+    position: relative;
+    position: relative;
+    z-index: 99999;
+}
+#menuline .line::after{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+background-color: #D7D1C6;
+left: 0%;
+transform: scaleX(0);
+transform-origin: bottom right;
+transition: transform ease-in-out .5s;
+}
+
+
+
+#menuline:hover .line::after{
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+.menu-right:hover{
+    filter: blur(1.1px);
+    cursor: pointer;
+}
+.menu-right{
+    filter: blur(0px);
+    transition: filter .5s;
+    cursor: pointer;
+    
+}
+
